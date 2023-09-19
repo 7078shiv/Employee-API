@@ -7,14 +7,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class EmployeeService {
+    @Autowired
+    KafkaTemplate<String, Object> kafkaTemplate;
+    private static final String TOPIC = "Employee-details";
     @Autowired
     private EmployeeRepo employeeRepo;
     public ResponseEntity<?> getEmployeeById(int id) {
@@ -47,12 +50,12 @@ public class EmployeeService {
         }
     }
 
-    public ResponseEntity<?> addOrUpdateEmployee(int id,Employee employee) {
+    public ResponseEntity<?> addOrUpdateEmployee(Employee employee){
         try{
+            int id=employee.getId();
             if(id>0) {
                 Employee existingEmployee = employeeRepo.getEmployeeById(id);
                 if (existingEmployee!=null){
-                    existingEmployee.setId(employee.getId());
                     existingEmployee.setClientId(employee.getClientId());
                     existingEmployee.setDesignation(employee.getDesignation());
                     existingEmployee.setName(employee.getName());
@@ -60,10 +63,13 @@ public class EmployeeService {
                     existingEmployee.setEnable(employee.getEnable());
                     existingEmployee.setLastModifiedDate(employee.getLastModifiedDate());
                     employeeRepo.updateEmployee(existingEmployee);
+                    kafkaTemplate.send(TOPIC,existingEmployee);
+
                     return ResponseHandler.generateResponse("Employee Updated Successfully",HttpStatus.OK,existingEmployee);
                 }
                 else{
                     employeeRepo.saveEmployee(employee);
+                    kafkaTemplate.send(TOPIC,employee);
                     return ResponseHandler.generateResponse("Employee added successfully",HttpStatus.OK,employee);
                 }
             }

@@ -32,9 +32,9 @@ public class EmployeeController {
         return employees;
     }
 
-    @PostMapping("/add-or-update-employee/{id}")
-    public ResponseEntity<?> AddOrUpdateEmployee(@PathVariable int id, @RequestBody Employee employee){
-        ResponseEntity<?> response = employeeService.addOrUpdateEmployee(id,employee);
+    @PostMapping("/add-or-update-employee")
+    public ResponseEntity<?> AddOrUpdateEmployee(@RequestBody Employee employee){
+        ResponseEntity<?> response = employeeService.addOrUpdateEmployee(employee);
         return response;
     }
 }

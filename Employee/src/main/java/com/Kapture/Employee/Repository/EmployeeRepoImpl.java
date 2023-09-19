@@ -63,15 +63,17 @@ public class EmployeeRepoImpl implements EmployeeRepo{
     }
 
     @Override
-    public void updateEmployee(Employee existingEmployee) {
+    public void updateEmployee(Employee existingEmployee){
+        int ID=existingEmployee.getId();
         int clientId=existingEmployee.getClientId();
         String name=existingEmployee.getName();
         Date lastModifiedDate=existingEmployee.getLastModifiedDate();
         String designation=existingEmployee.getDesignation();
         int empCode = existingEmployee.getEmpCode();
         int enable = existingEmployee.getEnable();
-        String queryString = "UPDATE employee SET client_id=:clientId, name=:name,last_modified_date=:lastModifiedDate,designation=:designation,emp_code=:empCode,enable=:enable";
+        String queryString = "UPDATE employee SET client_id=:clientId, name=:name,last_modified_date=:lastModifiedDate,designation=:designation,emp_code=:empCode,enable=:enable where id=:ID";
         Map<String,Object>parametersToSet=setParameters(clientId, name, lastModifiedDate, designation, empCode, enable);
+        parametersToSet.put("ID",ID);
         queryUtil.updateQueryHelper(parametersToSet,queryString);
     }
 }
